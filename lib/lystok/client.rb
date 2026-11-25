@@ -16,16 +16,18 @@ module Lystok
     # @return [Webhooks]
     attr_reader :webhooks
 
-    # @param api_key [String, nil] an API key from Settings → For developers; +LYSTOK_API_KEY+ when not given
+    # @param key [String] an API key from Settings → For developers (+lk_live_…+); read it from wherever
+    #   you keep secrets. Also accepted as +api_key:+.
     # @param base_url [String, nil] default https://api.lystok.com
     # @param timeout [Numeric] how long one attempt may wait for the API, in seconds
     # @param max_retries [Integer] how many times to try again after a network error, a timeout,
     #   429 or 5xx. Safe for emails too: every send carries an Idempotency-Key.
     # @param transport [#call, nil] your own HTTP sender; see {Client.net_http}
-    def initialize(api_key: nil, base_url: nil, timeout: 30, max_retries: 2, transport: nil)
-      key = api_key || ENV.fetch("LYSTOK_API_KEY", nil)
-      if key.nil? || key.empty?
-        raise ArgumentError, "Missing API key: pass it to Lystok::Client.new(api_key: 'lk_live_...') or set LYSTOK_API_KEY"
+    # @raise [ArgumentError] when the key is missing or blank
+    def initialize(key = nil, api_key: nil, base_url: nil, timeout: 30, max_retries: 2, transport: nil)
+      key ||= api_key
+      if !key.is_a?(String) || key.strip.empty?
+        raise ArgumentError, "Missing API key: pass your Lystok API key (lk_live_…) to Lystok::Client.new(api_key)"
       end
 
       @api_key = key

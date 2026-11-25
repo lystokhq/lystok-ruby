@@ -13,7 +13,7 @@ require_relative "lystok/client"
 
 # The official library for the Lystok email API.
 #
-#   lystok = Lystok::Client.new # reads LYSTOK_API_KEY
+#   lystok = Lystok::Client.new(ENV.fetch("LYSTOK_API_KEY"))
 #   email = lystok.emails.create(
 #     from: "Shop <orders@shop.example>",
 #     to: "olena@example.com",

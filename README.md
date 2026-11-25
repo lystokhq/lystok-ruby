@@ -16,7 +16,7 @@ Create an API key in Lystok → Settings → For developers, and verify your sen
 ```ruby
 require "lystok"
 
-lystok = Lystok::Client.new # reads LYSTOK_API_KEY
+lystok = Lystok::Client.new(ENV.fetch("LYSTOK_API_KEY"))
 
 email = lystok.emails.create(
   from: "Shop <orders@shop.example>",
@@ -27,8 +27,10 @@ email = lystok.emails.create(
 email[:id]
 ```
 
-`Lystok::Client.new(api_key: "lk_live_…")` takes the key directly. Keys belong on your server:
-never put one in a browser or a mobile app.
+The client takes the key as its first argument; the library never reads the environment itself,
+so keep the key wherever you like: an environment variable of any name, or in Rails
+`Lystok::Client.new(Rails.application.credentials.dig(:lystok, :api_key))`. Keys belong on your
+server: never put one in a browser or a mobile app.
 
 Params are keywords or a hash, with keys as the API names them (`template_id`). Answers are hashes
 with symbol keys (`email[:created_at]`).
@@ -122,7 +124,7 @@ Network errors, timeouts, `429` and `5xx` are tried again twice, waiting a littl
 (or as long as `Retry-After` says). Each try may take 30 seconds.
 
 ```ruby
-lystok = Lystok::Client.new(max_retries: 4, timeout: 10)
+lystok = Lystok::Client.new(api_key, max_retries: 4, timeout: 10)
 lystok.emails.get(id, timeout: 5)
 ```
 

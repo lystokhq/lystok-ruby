@@ -11,7 +11,7 @@ require_relative "test_helper"
 class LiveTest < Minitest::Test
   def setup
     skip "set LYSTOK_LIVE=1 to run" unless ENV["LYSTOK_LIVE"] == "1"
-    @lystok = Lystok::Client.new(base_url: ENV.fetch("LYSTOK_BASE_URL", nil))
+    @lystok = Lystok::Client.new(ENV.fetch("LYSTOK_API_KEY"), base_url: ENV.fetch("LYSTOK_BASE_URL", nil))
     @from = ENV.fetch("LYSTOK_TEST_FROM")
     @to = ENV.fetch("LYSTOK_TEST_TO")
   end

@@ -64,7 +64,7 @@ class WebhookTest < Minitest::Test
   end
 
   def test_on_the_client
-    event = Lystok::Client.new(api_key: "lk_test_x").webhooks.verify(VALID["payload"], VALID["headers"], VALID["secret"], now: VALID["now"])
+    event = Lystok::Client.new("lk_test_x").webhooks.verify(VALID["payload"], VALID["headers"], VALID["secret"], now: VALID["now"])
     assert_equal "email.delivered", event[:type]
   end
 end

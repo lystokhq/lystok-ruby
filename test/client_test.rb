@@ -20,7 +20,7 @@ class FakeApi
   end
 
   def client(**options)
-    Lystok::Client.new(api_key: "lk_live_test", base_url: url, **options)
+    Lystok::Client.new("lk_live_test", base_url: url, **options)
   end
 
   def close
@@ -76,15 +76,17 @@ class ClientTest < Minitest::Test
     { from: "a@x.example", to: "b@x.example", text: "t" }
   end
 
-  def test_needs_an_api_key_or_the_environment
-    before = ENV.delete("LYSTOK_API_KEY")
-    assert_raises(ArgumentError) { Lystok::Client.new }
-    ENV["LYSTOK_API_KEY"] = "lk_live_from_env"
+  def test_refuses_an_empty_api_key
+    [nil, "", "  "].each do |key|
+      assert_raises(ArgumentError) { Lystok::Client.new(key) }
+    end
+    assert_raises(ArgumentError) { Lystok::Client.new(base_url: @api.url) }
+  end
+
+  def test_takes_the_key_as_a_keyword_too
     answer(200, { id: "e1" })
-    Lystok::Client.new(base_url: @api.url).emails.get("e1")
-    assert_equal "Bearer lk_live_from_env", @api.calls[0][:headers]["authorization"]
-  ensure
-    before ? ENV["LYSTOK_API_KEY"] = before : ENV.delete("LYSTOK_API_KEY")
+    Lystok::Client.new(api_key: "lk_live_keyword", base_url: @api.url).emails.get("e1")
+    assert_equal "Bearer lk_live_keyword", @api.calls[0][:headers]["authorization"]
   end
 
   def test_create
@@ -179,7 +181,7 @@ class ClientTest < Minitest::Test
   end
 
   def test_connection_error
-    lystok = Lystok::Client.new(api_key: "lk_live_test", base_url: "http://127.0.0.1:9", max_retries: 1)
+    lystok = Lystok::Client.new("lk_live_test", base_url: "http://127.0.0.1:9", max_retries: 1)
     err = assert_raises(Lystok::Error) { lystok.emails.get("e1") }
     assert_equal [0, "connection_error"], [err.status, err.code]
   end
